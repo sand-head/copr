@@ -16,7 +16,7 @@ BuildRequires:  cargo
 BuildRequires:  pandoc
 BuildRequires:  make
 
-Requires:       wayland-protocols
+Requires:       wayland-protocols-devel
 
 ExclusiveArch:  %{rust_arches}
 
