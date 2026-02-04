@@ -22,20 +22,16 @@ ExclusiveArch:  %{rust_arches}
 
 %description %{_description}
 
-%generate_buildrequires
-%cargo_generate_buildrequires
-
 %prep
-%autosetup -n %{name}-%{version}
-%cargo_prep
+%autosetup
 
 %build
-%cargo_build
+cargo build --release --locked
 ./scripts/build-docs.sh man
 
 %install
-%cargo_install
-
+install -Dpm0755 -t %{buildroot}%{_bindir}/ target/release/shikane
+install -Dpm0755 -t %{buildroot}%{_bindir}/ target/release/shikanectl
 install -Dm644 build/man/shikane.1.gz %{buildroot}%{_mandir}/man1/shikane.1.gz
 install -Dm644 build/man/shikane.5.gz %{buildroot}%{_mandir}/man5/shikane.5.gz
 install -Dm644 build/man/shikanectl.1.gz %{buildroot}%{_mandir}/man1/shikanectl.1.gz
