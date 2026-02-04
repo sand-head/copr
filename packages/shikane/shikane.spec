@@ -22,6 +22,9 @@ ExclusiveArch:  %{rust_arches}
 
 %description %{_description}
 
+%generate_buildrequires
+%cargo_generate_buildrequires
+
 %prep
 %autosetup -n %{name}-%{version}
 %cargo_prep
