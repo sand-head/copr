@@ -216,7 +216,7 @@ jobs:
               exit 1
             fi
 
-            ((wave_idx++))
+            ((wave_idx++)) || true
           done < /tmp/build_waves.txt
 
           echo "All builds completed successfully."

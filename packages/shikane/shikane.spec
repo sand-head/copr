@@ -1,4 +1,3 @@
-# Maintained at https://github.com/sand-head/copr
 %global forgeurl https://github.com/hw0lff/shikane
 %global _description %{expand:
 %{summary}.}
