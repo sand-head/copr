@@ -1,0 +1,222 @@
+name: Trigger COPR Builds
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "packages/**"
+
+env:
+  COPR_PROJECT: sand-head/packages
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Install and configure copr-cli
+        env:
+          COPR_API_TOKEN: ${{ secrets.COPR_API_TOKEN }}
+        run: |
+          pip install copr-cli
+          mkdir -p ~/.config
+          echo "$COPR_API_TOKEN" > ~/.config/copr
+          if ! copr-cli whoami &>/dev/null; then
+            echo "::error::COPR API token is invalid or expired. Generate a new one at https://copr.fedorainfracloud.org/api/ and update the COPR_API_TOKEN secret."
+            exit 1
+          fi
+          echo "Authenticated as: $(copr-cli whoami)"
+
+      - name: Detect changed packages
+        id: changed
+        run: |
+          pkgs=$(git diff --name-only HEAD~1 HEAD -- packages/ \
+            | cut -d'/' -f2 \
+            | sort -u \
+            | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "packages=$pkgs" >> "$GITHUB_OUTPUT"
+          echo "Changed packages: $pkgs"
+          if [[ "$pkgs" == "[]" ]]; then
+            echo "No package changes detected."
+            exit 0
+          fi
+
+      - name: Scan inter-package dependencies
+        if: steps.changed.outputs.packages != '[]'
+        id: deps
+        run: |
+          set -euo pipefail
+
+          # Single pass: build both forward and reverse dependency maps
+          # forward: pkg -> in-repo packages it depends on
+          # reverse: pkg -> in-repo packages that depend on it
+          declare -A forward_deps reverse_deps
+          repo_pkgs=()
+          for dir in packages/*/; do
+            repo_pkgs+=("$(basename "$dir")")
+          done
+
+          for dir in packages/*/; do
+            pkg=$(basename "$dir")
+            spec="$dir/$pkg.spec"
+            [[ -f "$spec" ]] || continue
+
+            deps=$(grep -iE '^\s*(Build)?Requires:' "$spec" \
+              | sed 's/.*:\s*//' \
+              | sed 's/[>=<].*//' \
+              | tr -d ' ' \
+              | sort -u)
+
+            for repo_pkg in "${repo_pkgs[@]}"; do
+              [[ "$repo_pkg" == "$pkg" ]] && continue
+              if echo "$deps" | grep -qiF "$repo_pkg"; then
+                forward_deps["$pkg"]+=" $repo_pkg"
+                reverse_deps["$repo_pkg"]+=" $pkg"
+              fi
+            done
+          done
+
+          # Serialize maps to files for use in later steps
+          for key in "${!forward_deps[@]}"; do
+            echo "$key:${forward_deps[$key]}"
+          done > /tmp/forward_deps.txt
+
+          for key in "${!reverse_deps[@]}"; do
+            echo "$key:${reverse_deps[$key]}"
+          done > /tmp/reverse_deps.txt
+
+          echo "=== Forward dependencies ==="
+          cat /tmp/forward_deps.txt
+          echo ""
+          echo "=== Reverse dependencies ==="
+          cat /tmp/reverse_deps.txt
+
+      - name: Compute build plan
+        if: steps.changed.outputs.packages != '[]'
+        id: plan
+        env:
+          CHANGED: ${{ steps.changed.outputs.packages }}
+        run: |
+          set -euo pipefail
+
+          # Reload dependency maps
+          declare -A forward_deps reverse_deps
+          while IFS=: read -r key val; do
+            forward_deps["$key"]="$val"
+          done < /tmp/forward_deps.txt 2>/dev/null || true
+
+          while IFS=: read -r key val; do
+            reverse_deps["$key"]="$val"
+          done < /tmp/reverse_deps.txt 2>/dev/null || true
+
+          # BFS: find all packages that need building (changed + transitive dependents)
+          declare -A needs_build
+          queue=()
+          for pkg in $(echo "$CHANGED" | jq -r '.[]'); do
+            needs_build["$pkg"]=1
+            queue+=("$pkg")
+          done
+
+          while [[ ${#queue[@]} -gt 0 ]]; do
+            current="${queue[0]}"
+            queue=("${queue[@]:1}")
+            for dep in ${reverse_deps["$current"]:-}; do
+              if [[ -z "${needs_build[$dep]:-}" ]]; then
+                needs_build["$dep"]=1
+                queue+=("$dep")
+              fi
+            done
+          done
+
+          # Topological sort into waves
+          # A package is placed in the earliest wave where all its in-repo
+          # dependencies (that are also being built) are in a prior wave.
+          declare -A wave_of
+          waves=()
+          remaining=("${!needs_build[@]}")
+
+          while [[ ${#remaining[@]} -gt 0 ]]; do
+            current_wave=()
+            still_remaining=()
+
+            for pkg in "${remaining[@]}"; do
+              ready=true
+              for dep in ${forward_deps["$pkg"]:-}; do
+                if [[ -n "${needs_build[$dep]:-}" && -z "${wave_of[$dep]:-}" ]]; then
+                  ready=false
+                  break
+                fi
+              done
+
+              if [[ "$ready" == "true" ]]; then
+                current_wave+=("$pkg")
+              else
+                still_remaining+=("$pkg")
+              fi
+            done
+
+            if [[ ${#current_wave[@]} -eq 0 ]]; then
+              echo "::error::Circular dependency detected among: ${still_remaining[*]}"
+              exit 1
+            fi
+
+            wave_idx=${#waves[@]}
+            for pkg in "${current_wave[@]}"; do
+              wave_of["$pkg"]=$wave_idx
+            done
+            waves+=("$(IFS=,; echo "${current_wave[*]}")")
+            remaining=("${still_remaining[@]}")
+          done
+
+          # Write build plan to file
+          printf '%s\n' "${waves[@]}" > /tmp/build_waves.txt
+
+          echo "=== Build plan ==="
+          for i in "${!waves[@]}"; do
+            echo "  Wave $i: ${waves[$i]}"
+          done
+
+      - name: Execute builds
+        if: steps.changed.outputs.packages != '[]'
+        run: |
+          set -euo pipefail
+
+          wave_idx=0
+          while IFS= read -r wave; do
+            echo "::group::Wave $wave_idx: $wave"
+            IFS=',' read -ra pkgs <<< "$wave"
+
+            pids=()
+            for pkg in "${pkgs[@]}"; do
+              echo "Starting build: $pkg"
+              copr-cli build-package "${{ env.COPR_PROJECT }}" \
+                --name "$pkg" \
+                --timeout 18000 &
+              pids+=("$!:$pkg")
+            done
+
+            failed=()
+            for entry in "${pids[@]}"; do
+              pid="${entry%%:*}"
+              pkg="${entry##*:}"
+              if ! wait "$pid"; then
+                echo "::error::Build failed: $pkg"
+                failed+=("$pkg")
+              else
+                echo "Build succeeded: $pkg"
+              fi
+            done
+            echo "::endgroup::"
+
+            if [[ ${#failed[@]} -gt 0 ]]; then
+              echo "::error::Wave $wave_idx had failures: ${failed[*]}. Stopping propagation."
+              exit 1
+            fi
+
+            ((wave_idx++))
+          done < /tmp/build_waves.txt
+
+          echo "All builds completed successfully."
