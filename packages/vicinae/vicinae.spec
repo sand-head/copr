@@ -13,32 +13,29 @@ Source0:        %{url}/archive/v%{version}/%{name}-%{version}.tar.gz
 
 BuildRequires:  cmake >= 3.16
 BuildRequires:  gcc-c++ >= 15
-BuildRequires:  git
-BuildRequires:  libicu-devel
 BuildRequires:  ninja-build
 BuildRequires:  nodejs
 BuildRequires:  npm
-BuildRequires:  pkgconfig(protobuf)
-BuildRequires:  pkgconfig(absl_base)
-BuildRequires:  pkgconfig(Qt6Core)
-BuildRequires:  pkgconfig(Qt6Gui)
-BuildRequires:  pkgconfig(Qt6Quick)
-BuildRequires:  pkgconfig(Qt6Svg)
-BuildRequires:  pkgconfig(Qt6Widgets)
-BuildRequires:  pkgconfig(Qt6WaylandClient)
-BuildRequires:  cmake(Qt6GuiPrivate)
-BuildRequires:  pkgconfig(openssl)
-BuildRequires:  pkgconfig(wayland-client)
-BuildRequires:  pkgconfig(xcb)
-BuildRequires:  pkgconfig(xkbcommon)
-BuildRequires:  pkgconfig(libxml-2.0)
-BuildRequires:  pkgconfig(libqalculate)
-BuildRequires:  pkgconfig(libudev)
-BuildRequires:  cmake(Qt6Keychain)
-BuildRequires:  cmake(LayerShellQt)
-BuildRequires:  cmake(KF6SyntaxHighlighting)
-BuildRequires:  minizip-devel
 BuildRequires:  desktop-file-utils
+BuildRequires:  glaze
+BuildRequires:  libicu-devel
+BuildRequires:  minizip-devel
+BuildRequires:  qt6-qtbase-private-devel
+BuildRequires:  cmake(Qt6)
+BuildRequires:  cmake(Qt6Quick)
+BuildRequires:  cmake(Qt6Svg)
+BuildRequires:  cmake(Qt6WaylandClient)
+BuildRequires:  cmake(Qt6Widgets)
+BuildRequires:  cmake(Qt6Keychain)
+BuildRequires:  cmake(KF6SyntaxHighlighting)
+BuildRequires:  cmake(LayerShellQt)
+BuildRequires:  cmake(absl)
+BuildRequires:  pkgconfig(icu-uc)
+BuildRequires:  pkgconfig(libcmark-gfm)
+BuildRequires:  pkgconfig(libqalculate)
+BuildRequires:  pkgconfig(openssl)
+BuildRequires:  pkgconfig(protobuf)
+BuildRequires:  wayland-devel
 
 Requires:       nodejs
 
@@ -65,9 +62,9 @@ popd
     -DINSTALL_NODE_MODULES=OFF \
     -DUSE_SYSTEM_PROTOBUF=ON \
     -DUSE_SYSTEM_ABSEIL=ON \
-    -DUSE_SYSTEM_CMARK_GFM=OFF \
+    -DUSE_SYSTEM_CMARK_GFM=ON \
     -DUSE_SYSTEM_LAYER_SHELL=ON \
-    -DUSE_SYSTEM_GLAZE=OFF \
+    -DUSE_SYSTEM_GLAZE=ON \
     -DUSE_SYSTEM_QT_KEYCHAIN=ON \
     -DLIBQALCULATE_BACKEND=ON \
     -DWAYLAND_LAYER_SHELL=ON \

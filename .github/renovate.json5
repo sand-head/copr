@@ -5,13 +5,22 @@
   ],
   "regexManagers": [
     {
-      "fileMatch": ["^packages/.+\\.spec$"],
+      "fileMatch": ["^packages/(?!cmark-gfm/).+\\.spec$"],
       "matchStrings": [
         "%global forgeurl https://github\\.com/(?<depName>[^/]+/[^\\s]+)\\s[\\s\\S]*?Version:\\s+(?<currentValue>.*?)\\n(?:[\\s\\S]*?GIT_COMMIT_HASH=(?<currentDigest>[a-f0-9]+))?"
       ],
       "datasourceTemplate": "github-tags",
       "versioningTemplate": "semver",
       "extractVersionTemplate": "^v?(?<version>.*)$"
+    },
+    {
+      // cmark-gfm uses non-semver versions like 0.29.0.gfm.13
+      "fileMatch": ["^packages/cmark-gfm/.+\\.spec$"],
+      "matchStrings": [
+        "%global forgeurl https://github\\.com/(?<depName>[^/]+/[^\\s]+)\\s[\\s\\S]*?Version:\\s+(?<currentValue>.*?)\\n"
+      ],
+      "datasourceTemplate": "github-tags",
+      "versioningTemplate": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)\\.gfm\\.(?<build>\\d+)$"
     }
   ],
   "packageRules": [
