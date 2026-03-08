@@ -82,7 +82,6 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/vicinae-url-handler.d
 %license LICENSE
 %doc README.md CONTRIBUTING.md
 %{_bindir}/vicinae
-%{_bindir}/vicinae-snippet
 %{_libexecdir}/vicinae/
 %{_datadir}/applications/vicinae.desktop
 %{_datadir}/applications/vicinae-url-handler.desktop
