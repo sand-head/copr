@@ -1,3 +1,4 @@
+# Maintained at https://github.com/sand-head/copr
 %global forgeurl https://github.com/github/cmark-gfm
 %global _description %{expand:
 GitHub's fork of cmark, adding GitHub Flavored Markdown extensions to the

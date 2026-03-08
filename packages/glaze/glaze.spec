@@ -1,3 +1,4 @@
+# Maintained at https://github.com/sand-head/copr
 %global forgeurl https://github.com/stephenberry/glaze
 %global _description %{expand:
 %{summary}.}
