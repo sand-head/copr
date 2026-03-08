@@ -18,6 +18,7 @@
       "matchStrings": [
         "%global forgeurl https://github\\.com/(?<depName>[^/]+/[^\\s]+)\\s[\\s\\S]*?GIT_COMMIT_HASH=(?<currentDigest>[a-f0-9]+)"
       ],
+      "currentValueTemplate": "main",
       "datasourceTemplate": "git-refs",
       "versioningTemplate": "git"
     }
