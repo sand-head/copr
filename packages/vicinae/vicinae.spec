@@ -13,6 +13,7 @@ Source0:        %{url}/archive/v%{version}/%{name}-%{version}.tar.gz
 
 BuildRequires:  cmake >= 3.16
 BuildRequires:  gcc-c++ >= 15
+BuildRequires:  git
 BuildRequires:  ninja-build
 BuildRequires:  nodejs
 BuildRequires:  npm
