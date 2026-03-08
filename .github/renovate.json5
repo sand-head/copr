@@ -5,7 +5,7 @@
   ],
   "regexManagers": [
     {
-      "fileMatch": ["^packages/(?!cmark-gfm/).+\\.spec$"],
+      "fileMatch": ["^packages/.+\\.spec$"],
       "matchStrings": [
         "%global forgeurl https://github\\.com/(?<depName>[^/]+/[^\\s]+)\\s[\\s\\S]*?Version:\\s+(?<currentValue>.*?)\\n(?:[\\s\\S]*?GIT_COMMIT_HASH=(?<currentDigest>[a-f0-9]+))?"
       ],
