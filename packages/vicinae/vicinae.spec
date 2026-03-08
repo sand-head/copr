@@ -28,9 +28,7 @@ BuildRequires:  pkgconfig(libxml-2.0)
 BuildRequires:  pkgconfig(libqalculate)
 BuildRequires:  cmake(Qt6Keychain)
 BuildRequires:  cmake(LayerShellQt)
-BuildRequires:  cmark-gfm-devel
 BuildRequires:  minizip-devel
-BuildRequires:  glaze-devel
 BuildRequires:  desktop-file-utils
 
 Requires:       nodejs
@@ -58,9 +56,9 @@ popd
     -DINSTALL_NODE_MODULES=OFF \
     -DUSE_SYSTEM_PROTOBUF=ON \
     -DUSE_SYSTEM_ABSEIL=ON \
-    -DUSE_SYSTEM_CMARK_GFM=ON \
+    -DUSE_SYSTEM_CMARK_GFM=OFF \
     -DUSE_SYSTEM_LAYER_SHELL=ON \
-    -DUSE_SYSTEM_GLAZE=ON \
+    -DUSE_SYSTEM_GLAZE=OFF \
     -DUSE_SYSTEM_QT_KEYCHAIN=ON \
     -DLIBQALCULATE_BACKEND=ON \
     -DWAYLAND_LAYER_SHELL=ON \
