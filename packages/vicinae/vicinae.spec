@@ -3,7 +3,7 @@
 %{summary}.}
 
 Name:           vicinae
-Version:        0.19.3
+Version:        0.20.3
 Release:        %autorelease
 Summary:        A focused launcher for your desktop
 
@@ -53,7 +53,7 @@ popd
     -GNinja \
     -DCMAKE_BUILD_TYPE=Release \
     -DVICINAE_GIT_TAG=v%{version} \
-    -DVICINAE_GIT_COMMIT_HASH=d2f38c2b1fff24c4aba5bb0ea2c2bddd4ea5a5df \
+    -DVICINAE_GIT_COMMIT_HASH=e550ea4ff6ced8d1747df4608e1612b28a9d48a4 \
     -DVICINAE_PROVENANCE=fedora \
     -DINSTALL_NODE_MODULES=OFF \
     -DUSE_SYSTEM_PROTOBUF=ON \
