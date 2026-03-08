@@ -53,7 +53,7 @@ popd
     -GNinja \
     -DCMAKE_BUILD_TYPE=Release \
     -DVICINAE_GIT_TAG=v%{version} \
-    -DVICINAE_GIT_COMMIT_HASH=d2f38c2b1 \
+    -DVICINAE_GIT_COMMIT_HASH=d2f38c2b1fff24c4aba5bb0ea2c2bddd4ea5a5df \
     -DVICINAE_PROVENANCE=fedora \
     -DINSTALL_NODE_MODULES=OFF \
     -DUSE_SYSTEM_PROTOBUF=ON \

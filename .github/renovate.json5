@@ -7,25 +7,16 @@
     {
       "fileMatch": ["^packages/.+\\.spec$"],
       "matchStrings": [
-        "%global forgeurl https://github\\.com/(?<depName>[^/]+/[^\\s]+)\\s[\\s\\S]*?Version:\\s+(?<currentValue>.*?)\\n"
+        "%global forgeurl https://github\\.com/(?<depName>[^/]+/[^\\s]+)\\s[\\s\\S]*?Version:\\s+(?<currentValue>.*?)\\n(?:[\\s\\S]*?GIT_COMMIT_HASH=(?<currentDigest>[a-f0-9]+))?"
       ],
       "datasourceTemplate": "github-tags",
       "versioningTemplate": "semver",
       "extractVersionTemplate": "^v?(?<version>.*)$"
-    },
-    {
-      "fileMatch": ["^packages/.+\\.spec$"],
-      "matchStrings": [
-        "%global forgeurl https://github\\.com/(?<depName>[^/]+/[^\\s]+)\\s[\\s\\S]*?GIT_COMMIT_HASH=(?<currentDigest>[a-f0-9]+)"
-      ],
-      "currentValueTemplate": "main",
-      "datasourceTemplate": "git-refs",
-      "versioningTemplate": "git"
     }
   ],
   "packageRules": [
     {
-      "matchDatasources": ["github-tags", "git-refs"],
+      "matchDatasources": ["github-tags"],
       "automerge": false,
       "semanticCommits": "enabled",
       "semanticCommitType": "chore",
