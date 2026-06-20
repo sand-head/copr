@@ -3,7 +3,7 @@
 %{summary}.}
 
 Name:           shikane
-Version:        1.0.1
+Version:        1.1.1
 Release:        %autorelease
 Summary:        Dynamic output configuration tool for Wayland
 
