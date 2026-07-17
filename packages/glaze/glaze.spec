@@ -3,7 +3,7 @@
 %{summary}.}
 
 Name:           glaze
-Version:        7.1.1
+Version:        7.9.1
 Release:        %autorelease
 Summary:        Header-only C++23 JSON and serialization library
 
