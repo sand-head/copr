@@ -4,7 +4,7 @@ GitHub's fork of cmark, adding GitHub Flavored Markdown extensions to the
 upstream CommonMark reference implementation.}
 
 Name:           cmark-gfm
-Version:        0.29.0.gfm.13
+Version:        0.29.0.gfm.14
 Release:        %autorelease
 Summary:        GitHub Flavored Markdown parsing and rendering library
 
